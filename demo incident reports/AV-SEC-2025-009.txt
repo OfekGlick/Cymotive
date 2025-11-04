@@ -1,0 +1,13 @@
+Incident ID: AV-SEC-2025-009 Date of Detection: 2025-11-02 15:40 UTC Vehicle ID: Fleet-Wide Data Backend Threat Category: Data Exfiltration from Cloud Storage Detection Method: Cloud Security Posture Management (CSPM) Alert.
+
+Detailed Incident Description:
+
+Impact Assessment: The primary impact is the theft of valuable intellectual property. This data could be used by a competitor to train their own autonomous driving models or by security researchers to find vulnerabilities in our perception or control systems. There was no direct impact on vehicle safety or customer privacy, as PII had been scrubbed. However, the incident represents a significant breach of our data governance policies.
+
+Recommendations:
+
+    Implement automated secret scanning in our CI/CD pipeline to prevent any credentials from being committed to code repositories in the future.
+
+    Enforce a stricter S3 bucket policy that denies all public access by default and limits access to specific IAM roles and VPC endpoints.
+
+    Increase the sensitivity of our cloud monitoring alerts for data access from outside known IP ranges, especially for buckets containing sensitive R&D data.

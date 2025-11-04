@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-005 Date of Detection: 2025-10-31 08:45 UTC Vehicle ID: V2X-INFRA-012 (Roadside Unit) Threat Category: V2X Communication Man-in-the-Middle (MITM) Detection Method: V2X Message Anomaly Detection.
+
+Detailed Incident Description: Our V2X (Vehicle-to-Everything) security monitoring platform detected anomalous behavior associated with a Roadside Unit (RSU) at the intersection of 5th and Market Street. The RSU began broadcasting falsified Signal Phase and Timing (SPAT) messages. These messages incorrectly reported that the traffic light was green for north-south traffic when it was actually red. Simultaneously, it sent messages indicating a red light for east-west traffic, which was correct. The intent was to lure V2X-equipped autonomous vehicles traveling northbound into a collision with cross-traffic. Our system detected the anomaly because the malicious SPAT messages were being broadcast with a slightly delayed timing signature and a non-sequential message counter compared to the legitimate messages from the same RSU. Furthermore, our cloud-based backend correlated the V2X data with video feed data from a nearby city traffic camera, which visually confirmed the discrepancy between the broadcasted signal status and the actual traffic light state. The attacker likely compromised the RSU via an insecure maintenance port.
+
+Impact Assessment: The potential impact was a high-speed T-bone collision at a major intersection. Any AV relying solely on the V2X data for intersection navigation would have been at extreme risk. Several vehicles in the area received the malicious message but their sensor fusion systems, which prioritized visual confirmation of the traffic light from their onboard cameras, correctly overrode the V2X instruction and stopped.
+
+Response and Forensic Analysis: Our V2X security platform immediately broadcast a signed 'Revocation Message' for the compromised RSU's credentials, instructing all subscribing vehicles to distrust any messages from that unit. A high-priority alert was sent to the city's Department of Transportation, which dispatched a crew to physically inspect and reset the RSU. A network traffic capture from a nearby trusted vehicle showed two streams of SPAT messages: one legitimate and properly signed, and one with a forged signature that was being broadcast from a separate, unauthorized radio module co-located with the RSU. This indicates a physical hardware implant on the RSU.
+
+Recommendations:
+
+    Implement regular physical and remote integrity checks for all RSU hardware in the network.
+
+    Enhance the V2X protocol on vehicles to require cross-validation of SPAT data with visual sensor data before making a critical navigation decision, such as proceeding through an intersection.
+
+    Deploy a V2X-specific intrusion detection system that uses RF fingerprinting to detect rogue transmitters operating near legitimate RSUs.

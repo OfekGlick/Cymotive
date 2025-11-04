@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-006 Date of Detection: 2025-11-01 19:20 UTC Vehicle ID: AV-451P (Fleet: "Luxury Cruise") Threat Category: Ransomware on In-Vehicle Infotainment (IVI) System Detection Method: Endpoint Detection and Response (EDR) Agent.
+
+Detailed Incident Description: The EDR agent installed on the Android Automotive-based IVI system of vehicle AV-451P detected and blocked a ransomware execution attempt. The malware was introduced when the vehicle's owner connected a compromised USB stick containing music files to the IVI's media port. One of the files was a malicious .apk disguised as a media player update. Upon the user inadvertently granting it permissions, the application began to encrypt user-facing files on the IVI system's storage, including navigation maps, user profiles, and downloaded media. The EDR agent detected this behavior through its file integrity monitoring and behavioral analysis modules, specifically noting a rapid sequence of file read/write/rename operations with high-entropy content, characteristic of ransomware. A ransom note was then written to the IVI's home directory, which demanded 0.1 Bitcoin for the decryption key. The note was displayed on the main infotainment screen.
+
+Impact Assessment: The attack was successfully contained to the IVI system, which is architecturally isolated from the critical safety and driving control domains by a hypervisor and a hardware gateway. There was no risk to the vehicle's operational safety. The impact was limited to a loss of infotainment functionality (navigation, media, etc.) and a poor user experience. The owner's personal data stored on the IVI system was temporarily encrypted.
+
+Response and Forensic Analysis: The EDR agent automatically killed the ransomware process and isolated the compromised partitions of the IVI filesystem to prevent further encryption. It alerted the SOC and provided a hash of the malicious executable. The SOC analyst initiated a remote "IVI system restore" procedure, which wiped the infotainment system and re-flashed it with the latest clean, signed factory image from our servers. The user's data was restored from a cloud backup that had been taken 24 hours prior. The malware was identified as a variant of the "Cerber" family, modified to target Android Automotive systems.
+
+Recommendations:
+
+    Enforce stricter application whitelisting on the IVI system to prevent the execution of unauthorized applications.
+
+    Implement an automatic malware scanning feature for all external media (USB, SD cards) connected to the vehicle.
+
+    Provide clearer user education about the risks of installing software from untrusted sources on their vehicle's systems.

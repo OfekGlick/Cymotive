@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-020 Date of Detection: 2025-11-13 11:00 UTC Vehicle ID: N/A (Targets Development Pipeline) Threat Category: CI/CD Pipeline Compromise / Simulation Falsification Detection Method: Post-Merge Code Integrity Audit.
+
+Detailed Incident Description: A security engineer performing a routine post-merge audit on our 'main' autonomous driving code branch discovered a subtle, malicious code modification. The change was made to the vehicle's physics simulation environment, not the driving code itself. An attacker, who had compromised a developer's credentials (likely via a phishing attack), gained access to our CI/CD pipeline. They did not try to change the safety-critical driving logic, as this would be caught in peer review. Instead, they modified the simulation environment that is used to test that logic. The malicious code specifically changed the simulated friction coefficient of "wet-road-03" to be identical to that of a "dry-road-01." This meant that when our new braking algorithm was tested in the "wet road" simulation, it appeared to pass all safety tests, as the simulation incorrectly reported that it had ample grip. The developer's commit then passed automated testing, was approved by a reviewer (who only saw the "tests-passed" checkmark), and was merged into the main branch.
+
+Impact Assessment: This is a catastrophic-level "in-silico" attack. If this had not been caught, we would have deployed a new braking algorithm to the entire fleet that was dangerously over-aggressive and un-tested for wet road conditions. This would have almost certainly led to widespread loss-of-control accidents as soon as it started to rain. The attack targets the trust in our entire development and validation pipeline.
+
+Response and Forensic Analysis: The security team immediately froze the 'main' branch, preventing any new builds or deployments. The malicious commit was reverted. A full-scale investigation was launched to identify the compromised developer account, which was traced back to a successful phishing email 72 hours prior. All developer credentials were rotated. The team is now performing a full, manual code review of every commit made by the compromised account. All simulation models are being compared against their "golden" offline backups to find any other discrepancies.
+
+Recommendations:
+
+    Implement mandatory "simulation-code" reviews by a separate, dedicated "Sim-Security" team for any changes to the physics or sensor models in our test environment.
+
+    Enforce multi-factor authentication (MFA) on all developer accounts, especially for the final "merge-to-main" action.
+
+    Develop a "reality-check" monitor that constantly compares real-world driving data (e.g., actual braking distance on wet roads) against the simulation's predictions to detect "model-drift" or, in this case, malicious falsification.

@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-004 Date of Detection: 2025-10-30 11:00 UTC Vehicle ID: Fleet-Wide (Targeting "Urban Voyager" Fleet) Threat Category: Malicious Over-the-Air (OTA) Update Attempt Detection Method: Cryptographic Signature Validation Failure.
+
+Detailed Incident Description: Our central OTA update server detected a large-scale, coordinated attempt to push a malicious firmware update to the entire 'Urban Voyager' fleet. The attacker attempted to connect to our OTA update distribution endpoint, posing as the legitimate build server. They presented a firmware package intended for the vehicle's primary Autonomy Control Unit (ACU). The package was correctly formatted and targeted a known, legitimate ECU model. However, when our server, and subsequently the first few pilot vehicles that received the manifest, attempted to validate the cryptographic signature of the firmware binary, the validation failed. The package was signed with an invalid or forged digital certificate. The certificate's common name was spoofed to look like our official "AV-Firmware-Signing" certificate, but its issuer was an untrusted root certificate authority. Had this update been accepted, it would have installed malicious code on the core autonomous driving computer of potentially hundreds of vehicles. The code's payload, based on a later static analysis, included a routine to disable safety checks and provide remote backdoor access.
+
+Impact Assessment: The potential impact was catastrophic. A successful attack could have given the adversary complete control over a significant portion of the fleet, enabling them to cause coordinated accidents, steal vehicles, or create widespread traffic chaos. The security controls in place (mandatory cryptographic signature validation) prevented any actual impact.
+
+Response and Forensic Analysis: The OTA server's security gateway immediately blocked the connection attempts originating from a range of IP addresses associated with a known malicious VPS provider in Eastern Europe. An alert was generated, and the SOC initiated an investigation. The malicious firmware package was quarantined in a secure sandbox for analysis. Static and dynamic analysis confirmed the presence of a remote access trojan (RAT) and several exploits designed to achieve root-level persistence on the QNX-based operating system of the ACU. The attacker appears to have gained access to a non-production, development-environment code signing key, which, while not valid for production firmware, allowed them to create a structurally correct package.
+
+Recommendations:
+
+    Conduct a full audit of all code-signing keys and certificates, revoking any that are not strictly necessary for production use.
+
+    Implement IP whitelisting for the OTA update server's management interface to ensure that only connections from authorized build servers are permitted.
+
+    Enhance monitoring on the certificate transparency logs for any attempts to register certificates spoofing our company's identity.

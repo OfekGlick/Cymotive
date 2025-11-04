@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-011 Date of Detection: 2025-11-04 10:10 UTC Vehicle ID: AV-772R (Fleet: "Metro Shuttle") Threat Category: Insider Threat / Logic Bomb Detection Method: Pre-Drive Integrity Scan and Behavioral Anomaly.
+
+Detailed Incident Description: Vehicle AV-772R failed its automated pre-drive systems check at the central depot. The diagnostic routine flagged a checksum mismatch in the firmware of the primary Steering Control Module (SCM), an ECU that is not part of the regular OTA update cycle. The vehicle was immediately grounded. Simultaneously, our behavioral analytics platform, which monitors depot activity, flagged an unauthorized access event from the previous night. A maintenance terminal assigned to a specific technician (ID: E-451) was used to access the vehicle's direct diagnostic bus at 02:17 UTC, outside of any scheduled maintenance window. The technician's credentials were then used to flash a modified firmware image to the SCM. Analysis of the modified firmware revealed a 'logic bomb'—a piece of code set to execute under specific conditions. The trigger was a combination of the vehicle exceeding 40 mph and receiving a specific, non-standard CAN message from the infotainment system (which the technician presumably planned to send via a paired phone). When triggered, the malicious code would introduce a random, oscillating 'jitter' into the steering commands, making the vehicle uncontrollable at high speed.
+
+Impact Assessment: The potential impact was catastrophic, likely resulting in a high-speed collision with fatalities. The attack was sophisticated, requiring insider access and knowledge of the vehicle's specific CAN architecture. It was designed to bypass standard OTA integrity checks by targeting a low-level ECU.
+
+Response and Forensic Analysis: The vehicle was immediately isolated in a secure maintenance bay. A full forensic image was taken from the SCM. The malicious firmware was sandboxed, and the logic bomb's trigger and payload were identified. Depot access logs and CCTV footage were correlated with the digital logs, confirming the identity of the disgruntled technician who had been recently passed over for a promotion. The technician was apprehended by law enforcement. A fleet-wide emergency audit was initiated, forcing a full, byte-level firmware integrity check on the SCMs of all 45 vehicles the technician had access to. No other compromises were found. The compromised SCM was replaced, and the vehicle was put through a rigorous 2-day recertification process.
+
+Recommendations:
+
+    Implement a "two-man rule" for any direct firmware flashing of safety-critical ECUs outside of the automated OTA process.
+
+    Enforce time-based and location-based access controls for all maintenance terminals, preventing their use outside of scheduled work hours or designated service bays.
+
+    Expand the pre-drive integrity check to include a more comprehensive cryptographic signature validation of all critical ECUs, not just a simple checksum.

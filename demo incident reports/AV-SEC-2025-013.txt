@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-013 Date of Detection: 2025-11-06 (Retrospective Analysis) Vehicle ID: N/A (Applies to ML Model v2.4.1) Threat Category: Data Poisoning (ML Training Data) Detection Method: Cloud-Based Model Behavior Monitoring.
+
+Detailed Incident Description: Our central ML Operations (MLOps) team detected a subtle but persistent degradation in the performance of our newly deployed pedestrian detection model (Model-ID: "PedNet-v2.4.1"). The model, which had been in production for two weeks, showed a statistically significant increase in false negatives—specifically, failing to detect pedestrians at dawn and dusk—when compared to the previous version (v2.3.0). This drop in performance was not caught by standard pre-deployment validation, as the validation dataset was also tainted. An investigation traced the issue back to a specific batch of training data (Batch-ID: TR-49B-20251015) that was collected and automatically labeled by our "data-miner" fleet. An attacker had gained access to the data ingestion pipeline and, instead of deleting or modifying data, inserted thousands of subtly-manipulated images. In these images, pedestrians in low-light conditions were either given incorrect bounding boxes (e.g., labeled as "street sign") or had their labels removed entirely. When the model was trained on this "poisoned" dataset, it effectively learned not to recognize pedestrians in those specific lighting conditions.
+
+Impact Assessment: This is a highly severe, systemic attack. It created a specific, predictable, and dangerous blind spot in a critical safety model, putting all vehicles running this model at high risk of collision with pedestrians during twilight hours. The attack was stealthy and designed to pass automated checks, only becoming apparent through long-term, fleet-wide statistical analysis.
+
+Response and Forensic Analysis: The MLOps team immediately triggered an emergency fleet-wide rollback to the previous stable model (v2.3.0). The compromised training data batch (TR-49B) was quarantined. A full audit of the data ingestion pipeline was initiated, which discovered a compromised service account token in an S3 bucket policy. The attacker used this token to gain write access to the "unverified-data" bucket. The team is now retraining the model (v2.4.2) on a fully-verified dataset. A manual re-labeling effort was required for all data ingested during the breach period.
+
+Recommendations:
+
+    Implement a "data-attestation" and "data-provenance" framework, where all incoming training data is cryptographically signed by the vehicle that collected it, and its entire lifecycle (ingestion, labeling, augmentation) is tracked.
+
+    Deploy "outlier detection" models on the training data itself to automatically flag images or labels that are statistically different from the norm (e.g., a sudden drop in pedestrian labels at dusk).
+
+    Never use the same data for both training and final validation. Maintain a "golden" set of validation data that is kept offline, air-gapped, and manually verified.

@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-010 Date of Detection: 2025-11-03 09:00 UTC Vehicle ID: AV-817C (Fleet: "Urban Voyager") Threat Category: Physical Intrusion / Malicious USB Device Detection Method: Hardware Integrity Check Failure.
+
+Detailed Incident Description: During a routine maintenance check, a technician discovered an unauthorized USB device plugged into an internal, non-public diagnostic port on the main Autonomous Control Unit (ACU) of vehicle AV-817C. The vehicle's hardware integrity monitor had already flagged the presence of an unrecognized USB device VID/PID (Vendor ID/Product ID) during its last boot cycle, but the alert was of a lower priority and had not yet been triaged. The device was a small, custom-made circuit board masquerading as a standard USB flash drive. It was designed to act as a keyboard (a Human Interface Device or HID attack), and upon being powered, it would attempt to inject a sequence of keystrokes to open a shell and run a script. This is a classic "Rubber Ducky" style attack. The script's payload was designed to disable the ACU's firewall rules and establish a reverse SSH tunnel to an external command-and-control server, effectively creating a persistent backdoor into the vehicle's core computer. The attack was likely carried out by an insider or someone who had gained unauthorized physical access to the vehicle's maintenance panels.
+
+Impact Assessment: The device was discovered before it could successfully establish a connection to its C2 server, due to network egress filtering. However, if it had succeeded, the attacker would have gained privileged, persistent access to the most critical computer in the vehicle. This would allow them to manipulate any aspect of the autonomous driving system, steal data, or use the vehicle as a pivot point to attack the wider fleet network.
+
+Response and Forensic Analysis: The technician immediately powered down the vehicle and followed protocol to place the device in a forensics evidence bag. The SOC was notified, and the vehicle was put into a quarantined state. A forensic analysis of the device revealed its HID emulation capabilities and the embedded payload script. The script contained a hardcoded IP address for its C2 server, which was subsequently blocked at our network perimeter. A full software integrity scan was performed on the ACU to ensure no changes had been made. Access logs for the depot where the vehicle was serviced were reviewed to identify all personnel who had physical access to the vehicle in the preceding 48 hours.
+
+Recommendations:
+
+    Physically secure all internal diagnostic ports using tamper-evident seals or port blockers that require a special key for removal.
+
+    Implement a stricter USB device control policy (USB whitelisting) at the operating system level on all ECUs to only allow authorized and known devices to be recognized.
+
+    Elevate the priority of "unrecognized hardware" alerts from the integrity monitor and require immediate investigation by the SOC.

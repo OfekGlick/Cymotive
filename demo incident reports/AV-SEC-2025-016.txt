@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-016 Date of Detection: 2025-11-09 11:20 UTC Vehicle ID: AV-830C (Fleet: "Urban Voyager") Threat Category: Supply Chain Attack (Compromised Component) Detection Method: Sensor Plausibility Cross-Check.
+
+Detailed Incident Description: Vehicle AV-830C reported a low-confidence perception failure. Its forward-facing Lidar unit (Model: "Lidar-Gen3", Supplier: "SensorCo") began intermittently "deleting" objects. Specifically, the sensor would fail to return points for vehicles directly in front of it, creating a "hole" in the point cloud. This occurred despite the camera and radar systems clearly and correctly identifying a lead vehicle. The sensor fusion module flagged this high-severity discrepancy: (Camera_Object_Exists == True) && (Radar_Object_Exists == True) && (Lidar_Object_Exists == False). This "anti-signature" is highly anomalous. The vehicle's safety system correctly defaulted to the camera and radar data, maintaining a safe follow distance. An investigation into the Lidar unit revealed it was part of a specific manufacturing batch (Batch: SC-G3-90B1). A deeper forensic analysis of the sensor's firmware, extracted directly from its flash memory, found a malicious routine. This routine was programmed to activate after 500 hours of operation and to specifically filter out Lidar returns from objects that matched the thermal signature and radar cross-section of "Class 2" passenger vehicles.
+
+Impact Assessment: This is a deeply embedded supply chain attack. A Tier-1 supplier, "SensorCo," was itself compromised, and a state-level actor likely inserted this malicious code into their firmware build process. The attack's goal was to create a latent, "sleeper" vulnerability that, if present in all Lidar units, could be used to cause widespread, coordinated accidents by making our vehicles blind to a specific class of other vehicles.
+
+Response and Forensic Analysis: The vehicle was immediately taken out of service. We contacted the supplier, "SensorCo," who, after a joint investigation, confirmed that their primary code signing keys had been stolen. They identified the exact batch of sensors that received the malicious firmware. Our fleet logistics database was queried, and we identified 214 other vehicles in our fleet that were equipped with a sensor from the same batch. An emergency recall was issued for all 214 vehicles to have their Lidar units physically replaced and their firmware re-flashed with a clean, verified image.
+
+Recommendations:
+
+    Implement an "incoming component" security verification process, where we randomly select and perform full firmware reverse-engineering on a sample of components from all suppliers.
+
+    Demand that all suppliers provide a "Software Bill of Materials" (SBOM) for all components and cryptographically sign every firmware release.
+
+    Enhance the real-time sensor fusion logic to not only detect discrepancies but also to profile and "fingerprint" sensor failures, allowing for faster identification of systemic issues that may point to a supply chain attack.

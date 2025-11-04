@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-015 Date of Detection: 2025-11-08 09:45 UTC Vehicle ID: AV-101M (Fleet: "Mining Hauler") Threat Category: In-Vehicle Network DoS (Automotive Ethernet) Detection Method: Network Intrusion Detection System (NIDS).
+
+Detailed Incident Description: Vehicle AV-101M, an autonomous haul truck operating in a remote mining complex, came to an emergency stop after its primary sensor fusion unit lost communication with all high-bandwidth sensors. The vehicle's internal NIDS, which monitors the high-speed Automotive Ethernet backbone, detected a broadcast storm originating from a compromised "Work-Log" tablet. These tablets are used by mining staff to log loading/unloading times and are connected to the vehicle's "auxiliary" Ethernet switch. An attacker, likely a contractor with network access, had compromised the tablet and used it to launch a "broadcast amplification" attack. The tablet sent a flood of broadcast packets (e.g., ARPs or diagnostic pings) to the network's broadcast address. The network switches dutifully flooded these packets to all ports, saturating the 1-Gbps Ethernet backbone. This high-bandwidth traffic prevented the legitimate, time-sensitive data packets from the Lidar and high-resolution cameras from reaching the sensor fusion computer, effectively blinding the autonomous system.
+
+Impact Assessment: The attack caused a total loss of situational awareness for the autonomous system, forcing a "fail-safe" emergency stop. In a busy mining environment, a stalled 300-ton haul truck is a significant operational and safety hazard, disrupting operations and posing a risk of collision with other heavy machinery.
+
+Response and Forensic Analysis: The NIDS automatically identified the source MAC address of the broadcast storm and sent a command to the "smart" network switch to disable the corresponding port, effectively quarantining the malicious tablet. This action, known as "port-security," stopped the flood within 30 milliseconds. Communication between the sensors and the fusion unit was restored, and the autonomous system was able to perform a safe system check and resume operation after a 5-minute halt. The physical tablet was retrieved and analyzed, revealing malware designed specifically to scan for and flood Automotive Ethernet networks.
+
+Recommendations:
+
+    Implement stricter network segmentation. Auxiliary devices like logging tablets should be on a completely separate, rate-limited VLAN with no ability to send broadcast traffic to the critical sensor data network.
+
+    Enable broadcast storm control and port-security features on all managed Ethernet switches by default.
+
+    Deploy a hardware whitelisting solution for all devices connected to the vehicle's Ethernet network, based on MAC address and device fingerprinting.

@@ -1,0 +1,6 @@
+Incident ID: AV-SEC-2025-017 Date of Detection: 2025-11-10 16:15 UTC Vehicle ID: AV-606T (Fleet: "Robo-Taxi") Threat Category: Cellular Network Downgrade Attack Detection Method: Telematics Control Unit (TCU) Anomaly Detection.
+
+Detailed Incident Description: Our central fleet management platform lost its high-bandwidth telemetry connection to vehicle AV-606T. The vehicle's TCU, which normally operates on our private 5G network slice, reported that it was "falling back" to a 2G (GPRS) connection. This was flagged as an anomaly, as the vehicle was in a dense urban area with 100% 5G coverage. An attacker was using a rogue cell tower (IMSI catcher) to broadcast a stronger 5G/4G signal with a "reject" message, forcing the vehicle's TCU to downgrade to a 2G protocol, which lacks strong encryption. Once the vehicle was on the attacker's 2G network, the attacker initiated a Man-in-the-Middle (MITM) attack, intercepting all traffic between the vehicle and our servers. The attacker attempted to inject falsified commands, specifically a "RemoteUnlock" command, to try and gain access to the empty vehicle.
+
+Recommendations:
+

@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-018 Date of detection: 2025-11-11 22:50 UTC Vehicle ID: AV-998X (Fleet: "Highway Hauler") Threat Category: Sensor Attack (Radar Spoofing) Detection Method: Multi-Sensor Fusion Logic.
+
+Detailed Incident Description: Vehicle AV-998X, an autonomous truck, executed a sudden, hard braking maneuver on an empty stretch of highway, nearly causing a following vehicle to collide with it. The vehicle's logs showed that its long-range radar system had suddenly detected a large, stationary "ghost" object directly in its path. The object appeared with a radar cross-section consistent with another tractor-trailer, and the radar reported it at a distance of only 75 meters, triggering the "imminent collision" safety protocol. However, both the Lidar and camera systems reported a completely clear and open road. This massive sensor conflict—Radar showing a full-stop obstacle, Camera/Lidar showing nothing—was logged as a "Level 5 Sensor Disparity." The attack was carried out by a device on a highway overpass that recorded the truck's own radar signals and re-broadcasted them back with a slight delay, perfectly spoofing the "echo" of a large object at close range.
+
+Impact Assessment: The primary impact was the creation of a highly dangerous road hazard. The truck's emergency braking, while "safe" from its own perspective, could easily have caused a multi-vehicle pileup from following human-driven cars that were not expecting the sudden stop. This attack demonstrates a critical cyber-physical risk.
+
+Response and Forensic Analysis: The vehicle's fusion logic, while triggering the stop, also flagged the radar data as "low-confidence" due to the 0% correlation with other sensors. After the 2-second emergency braking event, the system automatically prioritized the "clear" signal from Lidar/Camera and disengaged the brake, logging a critical fault and alerting the remote operator. The remote operator took over, reviewed the camera feeds (which were clear), and guided the vehicle to the next rest stop for inspection. A review of the raw radar signal logs showed the signature of a "delay-and-replay" attack: the incoming signal was identical in modulation and frequency to the truck's own outgoing pulse.
+
+Recommendations:
+
+    Accelerate the deployment of new-generation radar systems that use "chirp diversity" or encrypted signals (like those used in military radar) to make them much harder to spoof.
+
+    Refine the emergency braking logic. When a high-confidence collision is reported by only one sensor type, the response should be a more controlled, "hard" deceleration rather than a full-lock "emergency" stop, while simultaneously alerting following vehicles via V2X.
+
+    Develop a specific heuristic to detect radar "ghosts" by checking for objects that appear instantaneously at close range with no prior tracking history, which is physically impossible for a real object.

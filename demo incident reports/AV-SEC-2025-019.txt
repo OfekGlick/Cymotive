@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-019 Date of Detection: 2025-11-12 14:20 UTC Vehicle ID: AV-561K (Fleet: "Luxury Cruise") Threat Category: Malicious IVI Application / Data Exfiltration Detection Method: IVI EDR and Network Monitoring.
+
+Detailed Incident Description: The EDR agent on the IVI system of vehicle AV-561K detected a third-party application, "RetroFlappy," attempting to access the vehicle's internal CAN bus data stream. The owner of the vehicle had downloaded this game from an untrusted, third-party app store. The application, upon installation, requested and was granted an overly broad set of permissions, including "Read Vehicle Data." The EDR agent noted that this game, which had no legitimate need for such access, was subscribing to CAN message IDs associated with the steering wheel, turn signals, and GPS location. Simultaneously, our network monitor flagged that the application was periodically opening a connection to an unknown server in Asia and uploading small, encrypted data packets. The application was "sniffing" the user's driving habits (when they turned, where they went, how fast they drove) and exfiltrating this PII, likely to sell to data brokers.
+
+Impact Assessment: This is a severe breach of customer privacy. The application successfully exfiltrated detailed, sensitive user PII and behavioral data. While the IVI gateway prevented the app from writing any commands to the CAN bus (preventing a safety incident), the read-access itself is a major data leak. This erodes customer trust and exposes the company to regulatory fines (e.g., GDPR).
+
+Response and Forensic Analysis: The EDR agent automatically revoked the application's permissions to access the CAN bus and blocked its external network access. It then prompted the user with a high-priority warning, explaining the malicious behavior and recommending immediate uninstallation. The SOC was alerted, and the application's package name and C2 server IP were added to a global blocklist, preventing it from being installed on or communicating with any other vehicle in the fleet. A security bulletin was sent to all owners warning them about the dangers of third-party app stores.
+
+Recommendations:
+
+    Implement a more granular, "just-in-time" permission system for the IVI, where applications must ask for permission to access sensitive data every time they need it, not just at install.
+
+    Create a "vetted" app store program, where all third-party apps are manually reviewed and signed by our security team before they can be made available to owners.
+
+    By default, all third-party applications should be blocked from reading any CAN bus data unless they have an explicit, digitally-signed entitlement for a specific, approved use case (e.g., an insurance dongle app).

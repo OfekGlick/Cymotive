@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-008 Date of Detection: 2025-11-02 02:00 UTC Vehicle ID: AV-202J (Fleet: "Highway Hauler") Threat Category: Remote Command Injection via Telematics Unit (TCU) Detection Method: Cloud-Based Fleet-Level Anomaly Detection.
+
+Detailed Incident Description: Our cloud analytics platform, which monitors telemetry data from the entire fleet, flagged a series of impossible state transitions for vehicle AV-202J. The vehicle, which was parked and powered down at a depot, began sending telemetry indicating its doors were locking and unlocking, and its headlights were flashing in a non-standard pattern (SOS). These commands were being sent directly to the Body Control Module (BCM) via the CAN bus. However, the vehicle's state was "OFF," and no authorized remote command had been issued from our fleet management dashboard. An investigation revealed that an attacker had exploited a previously unknown vulnerability (a zero-day) in the firmware of the vehicle's 4G Telematics Control Unit (TCU). The vulnerability was a buffer overflow in the parsing of SMS messages sent to the TCU's diagnostic interface. By sending a specially crafted SMS message to the SIM card in the TCU, the attacker could achieve remote code execution on the TCU itself. From there, they had a pivot point onto the vehicle's internal networks and could inject arbitrary CAN messages to control peripherals like doors and lights.
+
+Impact Assessment: The immediate impact was minor (battery drain, potential confusion). However, the attacker had established a foothold on a critical, network-connected ECU. From the compromised TCU, they could potentially have sent more dangerous CAN messages, such as engine start or brake release commands (though these are typically on a separate, firewalled bus). The primary risk was the potential for escalation to full vehicle control.
+
+Response and Forensic Analysis: Upon detecting the anomaly, the SOC immediately issued a command through a separate, out-of-band channel to sever the TCU's connection to the cellular network. The fleet operator was dispatched to physically disconnect the TCU from the vehicle. A full firmware image was extracted from the compromised TCU. A reverse engineering team analyzed the firmware and discovered the buffer overflow vulnerability in the SMS handling function. A patch was developed within four hours. The attacker's command-and-control infrastructure was traced to a bulletproof hosting provider.
+
+Recommendations:
+
+    Immediately deploy the patched TCU firmware to all vehicles in the fleet via a secure OTA update.
+
+    Commission a full third-party security audit and penetration test of all externally-facing ECUs, including the TCU and IVI system.
+
+    Implement a more robust network segmentation architecture within the vehicle to ensure that a compromise of a telematics unit cannot lead to the injection of arbitrary commands onto the safety-critical vehicle control bus.

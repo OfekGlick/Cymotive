@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-014 Date of Detection: 2025-11-07 13:30 UTC Vehicle ID: AV-550K (Fleet: "Luxury Cruise") Threat Category: Short-Range Wireless Exploit (Bluetooth) Detection Method: IVI Endpoint Detection and Response (EDR) Agent.
+
+Detailed Incident Description: The EDR agent on the In-Vehicle Infotainment (IVI) system of vehicle AV-550K detected a privilege escalation attempt. The vehicle was stationary in a public parking garage when the attack occurred. An attacker in close proximity exploited a known but unpatched vulnerability (CVE-2025-12345, a buffer overflow) in the IVI's legacy Bluetooth stack, which is used for hands-free calling and music streaming. The attacker sent a series of malformed Bluetooth discovery packets to the vehicle, triggering the overflow and achieving remote code execution (RCE) as the unprivileged media user on the IVI's operating system. The EDR agent then detected the second stage of the attack: the malicious process attempted to use a local exploit to gain root privileges on the IVI system. This activity, specifically the attempt to write to protected memory regions, was immediately blocked.
+
+Impact Assessment: The attack was successfully contained to the sandboxed IVI system. The IVI is on a separate network from the safety-critical driving controls, so there was no immediate risk to vehicle operation. However, had the privilege escalation succeeded, the attacker would have had full control over the IVI, enabling them to steal personal data (contacts, call logs, paired phone data, navigation history), eavesdrop on in-vehicle conversations using the hands-free microphone, or potentially pivot to other ECUs on the non-critical bus.
+
+Response and Forensic Analysis: The EDR agent killed the malicious process and severed all active Bluetooth connections. It also automatically disabled the Bluetooth receiver until the next vehicle restart. The SOC was alerted, and the full exploit chain was captured in the EDR logs. The team confirmed that the vulnerability (CVE-2025-12345) was scheduled to be patched in the next OTA update (slated for the following week) but had not yet been deployed to this specific vehicle. The patch was fast-tracked for an immediate, single-purpose security update pushed to all vulnerable vehicles in the fleet.
+
+Recommendations:
+
+    Implement a more aggressive patch management policy for all third-party and open-source components, especially for network-facing services like Bluetooth and Wi-Fi.
+
+    Enhance the EDR agent's capabilities to include RF-level monitoring, detecting anomalous Bluetooth scanning and pairing behavior before an exploit is attempted.
+
+    Refine the network segmentation between the IVI and other vehicle networks, ensuring that even a fully-compromised IVI system has zero ability to send messages to safety-critical components.

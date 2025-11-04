@@ -1,0 +1,15 @@
+Incident ID: AV-SEC-2025-012 Date of Detection: 2025-11-05 18:00 UTC Vehicle ID: AV-303L (Fleet: "Luxury Cruise") Threat Category: Malicious EV Charging (EVSE) Attack Detection Method: Power Electronics Anomaly Detection.
+
+Detailed Incident Description: Vehicle AV-303L, while plugged into a third-party DC fast-charging station, reported a critical power system anomaly. Our onboard "Sentinel" agent, which monitors the vehicle's power electronics, detected a series of rapid and unstable voltage and current fluctuations originating from the charger. The charging station (EVSE) was manipulating the ISO 15118 "Plug and Charge" communication protocol. It successfully authenticated itself to the vehicle using a stolen (likely cloned) operator certificate, then initiated a charge. However, once the high-voltage contactors were closed, the EVSE began sending malicious communication packets that rapidly fluctuated the 'Target Current' and 'Target Voltage' parameters, forcing the vehicle's Battery Management System (BMS) to constantly adjust. This created a high-frequency power oscillation, generating excessive heat in the charging port and busbars. The attacker's goal appeared to be physical damage to the vehicle's expensive battery pack or onboard charger.
+
+Impact Assessment: The immediate risk was thermal runaway (a battery fire) due to the extreme stress on the BMS and high-voltage components. The attack could also cause long-term, non-obvious degradation of the battery's health and lifespan. The Sentinel agent's rapid detection prevented any permanent physical damage.
+
+Response and Forensic Analysis: The Sentinel agent detected the unstable power profile, classified it as a "High-Risk Electrical Anomaly," and immediately triggered the vehicle's emergency "pyrotechnic disconnect" fuse, physically severing the connection to the charging port in a fraction of a second. This is a hardware-level failsafe. An alert was sent to the SOC and the vehicle owner. The SOC blacklisted the charging station's ID and location across the entire fleet and reported the compromised station to the charging network operator. Forensic analysis of the logged ISO 15118 communication packets confirmed the presence of malformed and non-standard control messages designed to exploit the BMS's response-time parameters.
+
+Recommendations:
+
+    Develop stricter validation rules within the BMS firmware for all incoming charging commands, including rate-limiting the acceptable frequency of change for target voltage and current.
+
+    Implement an independent "sanity check" module that monitors busbar temperature and power stability, with the authority to override the ISO 15118 protocol and halt charging if unsafe conditions are detected, even if the protocol messages appear valid.
+
+    Establish a threat intelligence sharing program with major EVSE network operators to rapidly identify and isolate malicious chargers.
