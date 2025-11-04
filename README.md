@@ -88,7 +88,7 @@ The system implements a conditional branching workflow that adapts based on inci
 
 
 ### Execution Flow:
-1. **Validation**: Extracts WHO, WHAT, WHERE, WHEN (✓), IMPACT (✓), STATUS
+1. **Validation**: Extracts WHO, WHAT, WHERE, WHEN, IMPACT, STATUS detailed of the incident
 2. **Router**: `critical_info_missing = False` → Routes to **Full Path**
 3. **Summarization**: Generates concise executive summary
 4. **Retriever**: Searches Pinecone for similar CAN bus attacks
