@@ -10,18 +10,7 @@
 
 ## 🎯 Project Overview
 
-This project demonstrates advanced software engineering practices in building production-ready AI systems. It implements a sophisticated **agentic workflow** that automatically analyzes cybersecurity incident reports, provides intelligent summaries, and generates actionable mitigation strategies using Retrieval Augmented Generation (RAG).
-
-### Key Technical Highlights
-
-- **Multi-Agent Architecture**: 7 specialized agents with distinct roles and responsibilities
-- **Conditional Workflow Routing**: Dynamic path selection based on information completeness
-- **RAG Implementation**: Vector search with Pinecone for contextual incident retrieval
-- **Modular Design**: Clean separation of concerns with extensible node-based architecture
-- **State Management**: Type-safe workflow state using TypedDict
-- **LLM Integration**: Advanced prompt engineering with Google Gemini 2.0 Flash
-
----
+This system automatically analyzes cybersecurity incident reports, summarizes them, and suggests mitigation strategies using Retrieval-Augmented Generation (RAG).
 
 ## 🏗️ Architecture
 
@@ -71,27 +60,6 @@ The system implements a conditional branching workflow that adapts based on inci
      └─────────────────────────┘                 │
 ```
 
-### Design Patterns Demonstrated
-
-1. **Strategy Pattern**: Conditional routing between conservative and full analysis paths
-2. **Template Method Pattern**: Base node class with common interface (`BaseNode`)
-3. **Dependency Injection**: Configuration object passed to all nodes
-4. **Single Responsibility Principle**: Each node handles one specific task
-5. **Open/Closed Principle**: Extensible node architecture without modifying core workflow
-
----
-
-## 🔧 Technical Stack
-
-| Technology | Purpose |
-|------------|---------|
-| **Python 3.x** | Core programming language |
-| **LangGraph** | State machine orchestration and workflow management |
-| **Google Gemini 2.0 Flash** | Large Language Model for text generation |
-| **Pinecone** | Vector database for semantic search and RAG |
-| **Google Embeddings (text-embedding-004)** | 768-dimensional text embeddings |
-
----
 
 ## 📁 Project Structure
 
@@ -119,17 +87,6 @@ The system implements a conditional branching workflow that adapts based on inci
 ```
 
 
-## 🔄 Workflow Execution Example
-
-### Input (Complete Report):
-```
-Incident ID: INC-2024-001
-Threat Category: CAN Bus DoS Attack
-Date: 2024-03-15 14:30 UTC
-
-An attacker injected high-frequency messages on the CAN bus...
-```
-
 ### Execution Flow:
 1. **Validation**: Extracts WHO, WHAT, WHERE, WHEN (✓), IMPACT (✓), STATUS
 2. **Router**: `critical_info_missing = False` → Routes to **Full Path**
@@ -137,26 +94,7 @@ An attacker injected high-frequency messages on the CAN bus...
 4. **Retriever**: Searches Pinecone for similar CAN bus attacks
 5. **Mitigation**: Creates 4-section plan using historical context
 
-### Output:
-```markdown
-## Incident Summary
-**INC-2024-001**: CAN Bus DoS Attack
-- High-frequency message injection on vehicle CAN bus
-- Impact: ECU communication failure, potential safety risk
-- Status: Contained, under investigation
 
-## Mitigation Plan
-
-### 1. Immediate Actions
-- Isolate affected vehicle from network
-- Capture CAN bus traffic logs for forensic analysis
-...
-
-### 2. Short-term Response
-...
-```
-
----
 
 ## 📦 Installation & Setup
 
@@ -176,33 +114,3 @@ export PINECONE_API_KEY="your-pinecone-api-key"
 python incident_copilot.py
 ```
 
-### Configuration
-
-Edit `config.py` to customize:
-- Gemini model selection (`gemini-1.5-flash`, etc.)
-- Embedding model and dimensions
-- Pinecone index name and cloud region
-- Generation parameters (temperature, max tokens)
-
----
-
-## 🧪 Testing
-
-The system includes test incident reports in `inputs.py`:
-- **Complete Report - CAN Bus DoS**: Tests full analysis path
-- **Complete Report - GPS Spoofing**: Tests RAG retrieval quality
-- **Incomplete Report**: Tests conservative path routing
-
-```python
-from incident_copilot import IncidentCopilot
-from configs.config import RAGConfig
-from configs.inputs import COMPLETE_REPORT_CAN_BUS
-
-config = RAGConfig(index_name="incident-reports")
-copilot = IncidentCopilot(config)
-
-result = copilot.process(
-    incident_report=COMPLETE_REPORT_CAN_BUS,
-    verbose=True
-)
-```
