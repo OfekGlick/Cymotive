@@ -20,12 +20,11 @@ Each agent has its own system message defining its role and behavior.
 All agents use system/human message separation for proper role definition.
 """
 
-import os
 from typing import TypedDict, List, Dict, Any
 
 from langgraph.graph import StateGraph, END
 
-from config import RAGConfig
+from configs.config import RAGConfig
 from nodes import (
     ValidationNode,
     RouterNode,
@@ -175,9 +174,6 @@ class IncidentCopilot:
         try:
             # Get Mermaid syntax
             mermaid_syntax = self.graph.get_graph().draw_mermaid()
-            print("Graph Mermaid Diagram:")
-            print(mermaid_syntax)
-
             # If output path provided, try to generate PNG
             if output_path:
                 try:
@@ -189,7 +185,7 @@ class IncidentCopilot:
                     print(f"\nCould not generate PNG (requires 'mermaid' CLI): {e}")
                     print("You can paste the Mermaid syntax into https://mermaid.live for visualization")
 
-            return mermaid_syntax
+            return self.graph.get_graph().draw_mermaid_png()
 
         except Exception as e:
             print(f"Error generating graph visualization: {e}")
@@ -279,7 +275,7 @@ def main():
     """
     Example usage of the Incident Copilot.
     """
-    from inputs import (
+    from configs.inputs import (
         COMPLETE_REPORT_CAN_BUS,
         COMPLETE_REPORT_GPS_SPOOFING,
         INCOMPLETE_REPORT_SUSPICIOUS_NETWORK
@@ -298,31 +294,25 @@ def main():
     # Create copilot
     copilot = IncidentCopilot(config)
 
-    # # Visualize the graph workflow
-    # print("\n" + "="*60)
-    # print("VISUALIZING WORKFLOW GRAPH")
-    # print("="*60)
-    # copilot.visualize_graph(output_path="incident_copilot_graph.png")
-    #
-    # # Example 1: Complete Incident Report - CAN Bus DoS Attack
-    # print("\n" + "="*60)
-    # print("EXAMPLE 1: Complete Incident Report (Full Path)")
-    # print("="*60)
-    #
-    # result1 = copilot.process(
-    #     incident_report=COMPLETE_REPORT_CAN_BUS,
-    #     verbose=True
-    # )
-    #
-    # # Example 2: Complete Incident Report - GPS Spoofing Attack
-    # print("\n" + "="*60)
-    # print("EXAMPLE 2: Complete Incident Report (Full Path)")
-    # print("="*60)
-    #
-    # result2 = copilot.process(
-    #     incident_report=COMPLETE_REPORT_GPS_SPOOFING,
-    #     verbose=True
-    # )
+    # Example 1: Complete Incident Report - CAN Bus DoS Attack
+    print("\n" + "="*60)
+    print("EXAMPLE 1: Complete Incident Report (Full Path)")
+    print("="*60)
+
+    result1 = copilot.process(
+        incident_report=COMPLETE_REPORT_CAN_BUS,
+        verbose=True
+    )
+
+    # Example 2: Complete Incident Report - GPS Spoofing Attack
+    print("\n" + "="*60)
+    print("EXAMPLE 2: Complete Incident Report (Full Path)")
+    print("="*60)
+
+    result2 = copilot.process(
+        incident_report=COMPLETE_REPORT_GPS_SPOOFING,
+        verbose=True
+    )
 
     # Example 3: Incomplete/Noisy Incident Report - Missing Critical Info
     print("\n" + "="*60)

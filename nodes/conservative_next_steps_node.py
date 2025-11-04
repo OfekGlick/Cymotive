@@ -3,12 +3,11 @@ Validation Node - Extracts standard information from incident reports.
 Uses the Validation Agent to extract WHO, WHAT, WHERE, WHEN, IMPACT, STATUS.
 """
 
-import re
 from typing import Dict, Any
 import google.generativeai as genai
 
 from .base_node import BaseNode
-from system_prompts import CONSERVATIVE_NEXTSTEPS_AGENT_PROMPT
+from configs.system_prompts import CONSERVATIVE_NEXTSTEPS_AGENT_PROMPT
 
 
 class ConservativeNextStepsNode(BaseNode):

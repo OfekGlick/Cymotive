@@ -8,7 +8,7 @@ from typing import Dict, Any
 import google.generativeai as genai
 
 from .base_node import BaseNode
-from system_prompts import VALIDATION_AGENT_PROMPT
+from configs.system_prompts import VALIDATION_AGENT_PROMPT
 
 
 class ValidationNode(BaseNode):

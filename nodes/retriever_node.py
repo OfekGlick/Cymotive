@@ -81,6 +81,14 @@ class RetrieverNode(BaseNode):
                     })
                     seen_ids.add(incident_id)
 
+            # Print retrieved incidents
+            print(f"\n[Retriever] Found {len(state['retrieved_incidents'])} similar incidents:")
+            for i, incident in enumerate(state['retrieved_incidents'], 1):
+                print(f"\n  [{i}] Incident ID: {incident['incident_id']}")
+                print(f"      Similarity Score: {incident['score']:.4f}")
+                print(f"      Threat Category: {incident['metadata'].get('threat_category', 'N/A')}")
+                print(f"      Description Preview: {incident['description'][:150]}...")
+
             # Extract recommendations from similar incidents
             state['retrieved_recommendations'] = []
             for match in recommendation_results.matches:
@@ -88,8 +96,10 @@ class RetrieverNode(BaseNode):
                 if len(text) > 50:  # Filter out very short responses
                     state['retrieved_recommendations'].append(text)
 
-            print(f"[Retriever] Found {len(state['retrieved_incidents'])} similar incidents")
-            print(f"[Retriever] Found {len(state['retrieved_recommendations'])} recommendations")
+            # Print retrieved recommendations
+            print(f"\n[Retriever] Found {len(state['retrieved_recommendations'])} recommendations:")
+            for i, rec in enumerate(state['retrieved_recommendations'][:3], 1):  # Show first 3
+                print(f"\n  [{i}] {rec[:200]}...")
 
         except Exception as e:
             state['error'] = f"Error in retrieval: {str(e)}"

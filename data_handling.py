@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
 import google.generativeai as genai
-from config import RAGConfig
+from configs.config import RAGConfig
 
 
 class DocumentIngestion:
@@ -126,7 +126,6 @@ class DocumentIngestion:
         Returns:
             List of document texts
         """
-        import os
         with open(file_path, 'r', encoding='utf-8') as f:
             # Each line is a document
             documents = [line.strip() for line in f if line.strip()]

@@ -98,10 +98,10 @@ The system implements a conditional branching workflow that adapts based on inci
 ```
 .
 ├── incident_copilot.py          # Main orchestrator & workflow builder
-├── config.py                    # Centralized configuration & API initialization
-├── system_prompts.py            # Agent prompt templates
 ├── inputs.py                    # Test incident reports
-│
+├── configs/                     # Configurations for the scripts
+│   ├── system_prompts.py                 # Agent prompt templates
+│   ├── config.py                         # Centralized configuration & API initialization
 ├── nodes/                       # Modular node implementations
 │   ├── __init__.py
 │   ├── base_node.py             # Abstract base class for all nodes
@@ -179,7 +179,7 @@ python incident_copilot.py
 ### Configuration
 
 Edit `config.py` to customize:
-- Gemini model selection (`gemini-2.0-flash`, etc.)
+- Gemini model selection (`gemini-1.5-flash`, etc.)
 - Embedding model and dimensions
 - Pinecone index name and cloud region
 - Generation parameters (temperature, max tokens)
@@ -195,8 +195,8 @@ The system includes test incident reports in `inputs.py`:
 
 ```python
 from incident_copilot import IncidentCopilot
-from config import RAGConfig
-from inputs import COMPLETE_REPORT_CAN_BUS
+from configs.config import RAGConfig
+from configs.inputs import COMPLETE_REPORT_CAN_BUS
 
 config = RAGConfig(index_name="incident-reports")
 copilot = IncidentCopilot(config)
