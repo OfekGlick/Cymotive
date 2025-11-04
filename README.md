@@ -41,27 +41,27 @@ The system implements a conditional branching workflow that adapts based on inci
        ├──────────────────────┬─────────────────────┐
        │ Missing              │ Complete            │
        ▼                      ▼                     │
-┌──────────────┐      ┌──────────────┐            │
-│ Conservative │      │   Complete   │            │
-│   Summary    │      │   Summary    │            │
-└──────┬───────┘      └──────┬───────┘            │
-       │                     │                     │
-       ▼                     ▼                     │
-┌──────────────┐      ┌──────────────┐            │
-│ Conservative │      │  Retriever   │ ← RAG     │
-│  Next Steps  │      │ (Pinecone)   │   Search   │
-└──────┬───────┘      └──────┬───────┘            │
-       │                     │                     │
-       │                     ▼                     │
-       │              ┌──────────────┐            │
-       │              │  Mitigation  │ ← Context- │
-       │              │    Agent     │   Enhanced │
-       │              └──────┬───────┘   Response │
-       │                     │                     │
-       ▼                     ▼                     │
-     ┌─────────────────────────┐                 │
-     │    Final Response       │                 │
-     └─────────────────────────┘                 │
+┌──────────────┐      ┌──────────────┐              │
+│ Conservative │      │   Complete   │              │
+│   Summary    │      │   Summary    │              │
+└──────┬───────┘      └──────┬───────┘              │
+       │                     │                      │
+       ▼                     ▼                      │
+┌──────────────┐      ┌──────────────┐              │
+│ Conservative │      │  Retriever   │ ← RAG        │
+│  Next Steps  │      │ (Pinecone)   │   Search     │
+└──────┬───────┘      └──────┬───────┘              │
+       │                     │                      │
+       │                     ▼                      │
+       │              ┌──────────────┐              │
+       │              │  Mitigation  │ ← Context   -│
+       │              │    Agent     │   Enhanced   │
+       │              └──────┬───────┘   Response   │
+       │                     │                      │
+       ▼                     ▼                      │
+     ┌─────────────────────────┐                    │
+     │    Final Response       │                    │
+     └─────────────────────────┘                    │
 ```
 
 
