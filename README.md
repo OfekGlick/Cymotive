@@ -1,6 +1,6 @@
 # Incident Copilot - AI-Powered Cybersecurity Incident Analysis
 
-> **An intelligent multi-agent system for analyzing and responding to autonomous vehicle cybersecurity incidents using LangGraph, RAG, and Google Gemini**
+> **An copilot system for analyzing and responding to autonomous vehicle cybersecurity incidents using LangGraph, RAG, and Google Gemini**
 
 [![LangGraph](https://img.shields.io/badge/LangGraph-Multi--Agent-blue)](https://github.com/langchain-ai/langgraph)
 [![Pinecone](https://img.shields.io/badge/Pinecone-Vector%20DB-green)](https://www.pinecone.io/)
