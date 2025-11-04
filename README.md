@@ -11,6 +11,10 @@
 ## 🎯 Project Overview
 
 This system automatically analyzes cybersecurity incident reports, summarizes them, and suggests mitigation strategies using Retrieval-Augmented Generation (RAG).
+## 📓  Demo
+
+**Check out the [demo_incident_copilot.ipynb](demo_incident_copilot.ipynb) Jupyter notebook** for a demonstration of the system processing all three test incident reports from `configs/inputs.py`.
+
 
 ## 🏗️ Architecture
 
