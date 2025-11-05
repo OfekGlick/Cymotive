@@ -36,37 +36,33 @@ class CompleteMitigationNode(BaseNode):
         try:
             print(f"\n[Mitigation Agent] Generating mitigation strategy...")
 
-            # Build context from retrieved similar incidents
+            # Build few-shot examples from retrieved similar incidents
+            # Each example contains both the incident description and its mitigation recommendations
             if state['retrieved_incidents']:
-                similar_incidents_context = "\n\n".join([
-                    f"**Incident {inc['incident_id']}** ({inc['metadata'].get('threat_category', 'Unknown')}):\n{inc['description']}"
-                    for inc in state['retrieved_incidents'][:3]
+                few_shot_examples = "\n\n".join([
+                    f"""### Example {i}: {inc['incident_id']} ({inc['metadata'].get('threat_category', 'Unknown')})
+**Incident Description:**
+{inc['description']}
+
+**Mitigation Strategy:**
+{inc['recommendations']}"""
+                    for i, inc in enumerate(state['retrieved_incidents'][:3], 1)
                 ])
             else:
-                similar_incidents_context = ""
+                few_shot_examples = "No similar historical incidents available."
 
-            # Build context from retrieved recommendations
-            if state['retrieved_recommendations']:
-                recommendations_context = "\n\n".join([
-                    f"- {rec}"
-                    for rec in state['retrieved_recommendations'][:5]
-                ])
-            else:
-                recommendations_context = "No past recommendations available."
-
-            # Human message with incident summary and retrieved context
+            # Human message with incident summary and few-shot examples
             human_message = f"""Please generate a mitigation plan for this incident.
 
             **CURRENT INCIDENT SUMMARY:**
             {state['summary']}
-            
-            **SIMILAR HISTORICAL INCIDENTS (Descriptions):**
-            {similar_incidents_context}
-            
-            **RECOMMENDATIONS FROM SIMILAR INCIDENTS:**
-            {recommendations_context}
-            
-            Please provide a comprehensive mitigation plan based on the above information."""
+
+            **FEW-SHOT EXAMPLES FROM SIMILAR HISTORICAL INCIDENTS:**
+            Below are examples of similar incidents and how they were mitigated. Use these as reference to create a comprehensive mitigation plan for the current incident.
+
+            {few_shot_examples}
+
+            Based on the current incident summary and the few-shot examples above, please provide a comprehensive mitigation plan."""
 
             # Call Mitigation Agent with system/human messages
             response = self.config.gemini_model.generate_content(

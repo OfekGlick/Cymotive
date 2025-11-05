@@ -14,7 +14,7 @@ class RAGConfig:
         self,
         gemini_api_key: str = None,
         pinecone_api_key: str = None,
-        index_name: str = "knowledge-base",
+        index_name: str = "incident_report-database",
         model: str = "models/gemini-2.0-flash",
         embedding_model: str = "models/text-embedding-004",
         embedding_dimension: int = 768,

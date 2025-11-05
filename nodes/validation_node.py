@@ -59,10 +59,11 @@ class ValidationNode(BaseNode):
             response_text = response.text.strip()
             self._parse_and_update_state(state, response_text)
 
-            # Check if critical information is missing
+            # Check if critical information is missing (WHAT, WHERE, WHEN)
+            what_missing = state['what'].lower() in ['unknown', 'not specified', '']
+            where_missing = state['where'].lower() in ['unknown', 'not specified', '']
             when_missing = state['when'].lower() in ['unknown', 'not specified', '']
-            impact_missing = state['impact'].lower() in ['unknown', 'not specified', '']
-            state['critical_info_missing'] = when_missing or impact_missing
+            state['critical_info_missing'] = what_missing or where_missing or when_missing
 
             # Also extract description for retrieval (use 'what' as description if present)
             state['description'] = state['what'] if state['what'] != "Unknown" else incident_report[:500]

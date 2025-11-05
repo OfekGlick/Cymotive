@@ -1,26 +1,27 @@
 """
-Validation Node - Extracts standard information from incident reports.
-Uses the Validation Agent to extract WHO, WHAT, WHERE, WHEN, IMPACT, STATUS.
+Retriever Node - Searches for similar historical incidents using semantic search.
+Uses the description namespace to find similar incidents and retrieves recommendations.
 """
 
-import re
 from typing import Dict, Any
-import google.generativeai as genai
 
 from .base_node import BaseNode
+from data_handling.embeddings import embed_query
+from data_handling.vector_store import VectorStore
 
 
 class RetrieverNode(BaseNode):
-    """Validates input and extracts standard information using Validation Agent."""
+    """Retrieves similar historical incidents using semantic search in the description namespace."""
 
     def __init__(self, config):
         """
-        Initialize validation node.
+        Initialize retriever node.
 
         Args:
             config: RAG configuration object
         """
         super().__init__(config)
+        self.vector_store = VectorStore(config.index, config.embedding_model)
 
     def execute(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -39,67 +40,57 @@ class RetrieverNode(BaseNode):
             # Use the description from the user's incident for searching
             search_query = state['description']
 
-            # Embed the search query using the same embedding model
+            # Embed the search query using shared embedding function
             print("[Retriever] Generating query embedding...")
-            query_embedding_result = genai.embed_content(
-                model=self.config.embedding_model,
-                content=search_query,
-                task_type="retrieval_query"
-            )
-            query_embedding = query_embedding_result['embedding']
+            query_embedding = embed_query(search_query, self.config.embedding_model)
 
-            # 1. Find similar incident DESCRIPTIONS
+            # Query only the 'description' namespace to find similar incidents
             print("[Retriever] Querying similar incident descriptions...")
-            description_results = self.config.index.query(
-                vector=query_embedding,
+            description_results = self.vector_store.query(
+                query_vector=query_embedding,
                 top_k=3,
-                filter={"section_type": {"$eq": "description"}},
+                namespace="description",
                 include_metadata=True
             )
 
-            # 2. Find applicable RECOMMENDATIONS from similar incidents
-            print("[Retriever] Querying recommendations...")
-            recommendation_results = self.config.index.query(
-                vector=query_embedding,
-                top_k=10,
-                filter={"section_type": {"$eq": "recommendations"}},
-                include_metadata=True
-            )
-
-            # Aggregate retrieved similar incident descriptions
+            # Extract both description and recommendations from the results
+            # Each description in the metadata contains section_recommendations_text
             state['retrieved_incidents'] = []
             seen_ids = set()
 
             for match in description_results.matches:
                 incident_id = match.metadata.get('incident_id', 'Unknown')
                 if incident_id not in seen_ids:
+                    # Get description text (the main embedded text)
+                    description_text = match.metadata.get('text', '')
+
+                    # Get recommendations text from metadata (cross-section reference)
+                    recommendations_text = match.metadata.get('section_recommendations_text', '')
+
                     state['retrieved_incidents'].append({
                         'incident_id': incident_id,
-                        'description': match.metadata.get('text', ''),
+                        'description': description_text,
+                        'recommendations': recommendations_text,
                         'metadata': match.metadata,
                         'score': match.score
                     })
                     seen_ids.add(incident_id)
 
-            # Print retrieved incidents
+            # Print retrieved incidents with both description and recommendations
             print(f"\n[Retriever] Found {len(state['retrieved_incidents'])} similar incidents:")
             for i, incident in enumerate(state['retrieved_incidents'], 1):
                 print(f"\n  [{i}] Incident ID: {incident['incident_id']}")
                 print(f"      Similarity Score: {incident['score']:.4f}")
                 print(f"      Threat Category: {incident['metadata'].get('threat_category', 'N/A')}")
                 print(f"      Description Preview: {incident['description'][:150]}...")
+                print(f"      Recommendations Preview: {incident['recommendations'][:150]}...")
 
-            # Extract recommendations from similar incidents
+            # For backward compatibility, also populate retrieved_recommendations
+            # (extracting recommendations from the incidents we found)
             state['retrieved_recommendations'] = []
-            for match in recommendation_results.matches:
-                text = match.metadata.get('text', '')
-                if len(text) > 50:  # Filter out very short responses
-                    state['retrieved_recommendations'].append(text)
-
-            # Print retrieved recommendations
-            print(f"\n[Retriever] Found {len(state['retrieved_recommendations'])} recommendations:")
-            for i, rec in enumerate(state['retrieved_recommendations'][:3], 1):  # Show first 3
-                print(f"\n  [{i}] {rec[:200]}...")
+            for incident in state['retrieved_incidents']:
+                if incident['recommendations']:
+                    state['retrieved_recommendations'].append(incident['recommendations'])
 
         except Exception as e:
             state['error'] = f"Error in retrieval: {str(e)}"

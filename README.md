@@ -41,27 +41,27 @@ The system implements a conditional branching workflow that adapts based on inci
        ├──────────────────────┬─────────────────────┐
        │ Missing              │ Complete            │
        ▼                      ▼                     │
-┌──────────────┐      ┌──────────────┐            │
-│ Conservative │      │   Complete   │            │
-│   Summary    │      │   Summary    │            │
-└──────┬───────┘      └──────┬───────┘            │
-       │                     │                     │
-       ▼                     ▼                     │
-┌──────────────┐      ┌──────────────┐            │
-│ Conservative │      │  Retriever   │ ← RAG     │
-│  Next Steps  │      │ (Pinecone)   │   Search   │
-└──────┬───────┘      └──────┬───────┘            │
-       │                     │                     │
-       │                     ▼                     │
-       │              ┌──────────────┐            │
-       │              │  Mitigation  │ ← Context- │
-       │              │    Agent     │   Enhanced │
-       │              └──────┬───────┘   Response │
-       │                     │                     │
-       ▼                     ▼                     │
-     ┌─────────────────────────┐                 │
-     │    Final Response       │                 │
-     └─────────────────────────┘                 │
+┌──────────────┐      ┌──────────────┐              │
+│ Conservative │      │   Complete   │              │
+│   Summary    │      │   Summary    │              │
+└──────┬───────┘      └──────┬───────┘              │
+       │                     │                      │
+       ▼                     ▼                      │
+┌──────────────┐      ┌──────────────┐              │
+│ Conservative │      │  Retriever   │ ← RAG        │
+│  Next Steps  │      │ (Pinecone)   │   Search     │
+└──────┬───────┘      └──────┬───────┘              │
+       │                     │                      │
+       │                     ▼                      │
+       │              ┌──────────────┐              │
+       │              │  Mitigation  │ ← Context   -│
+       │              │    Agent     │   Enhanced   │
+       │              └──────┬───────┘   Response   │
+       │                     │                      │
+       ▼                     ▼                      │
+     ┌─────────────────────────┐                    │
+     │    Final Response       │                    │
+     └─────────────────────────┘                    │
 ```
 
 
@@ -70,25 +70,71 @@ The system implements a conditional branching workflow that adapts based on inci
 ```
 .
 ├── incident_copilot.py          # Main orchestrator & workflow builder
-├── inputs.py                    # Test incident reports
-├── configs/                     # Configurations for the scripts
-│   ├── system_prompts.py                 # Agent prompt templates
-│   ├── config.py                         # Centralized configuration & API initialization
-├── nodes/                       # Modular node implementations
+├── demo_incident_copilot.ipynb  # Interactive demo notebook
+│
+├── configs/                     # Configuration files
+│   ├── config.py                # RAG configuration & API initialization
+│   ├── system_prompts.py        # Agent prompt templates
+│   └── inputs.py                # Test incident reports
+│
+├── nodes/                       # Workflow node implementations
 │   ├── __init__.py
 │   ├── base_node.py             # Abstract base class for all nodes
 │   ├── validation_node.py       # 5W1H information extraction
-│   ├── router_node.py           # Routing decision logging
+│   ├── router_node.py           # Routing decision logic
 │   ├── conservative_summary_node.py      # Conservative path summary
 │   ├── conservative_next_steps_node.py   # Conservative recommendations
 │   ├── complete_summarization_node.py    # Full incident summary
 │   ├── retriever_node.py        # RAG retrieval from Pinecone
 │   └── complete_mitigation_node.py       # Context-enhanced mitigation
 │
-├── data_handling.py             # Document ingestion utilities
+├── data_handling/               # Modular data processing package
+│   ├── __init__.py              # Public API exports
+│   ├── embeddings.py            # Embedding generation (shared)
+│   ├── vector_store.py          # Pinecone operations
+│   ├── document_parser.py       # Generic document utilities
+│   ├── incident_parser.py       # Incident report parsing
+│   └── ingestion_pipeline.py    # Orchestration & batch processing
+│
+├── data_handling.py             # Legacy ingestion script (deprecated)
 ├── requirements.txt
 └── README.md
 ```
+
+### Module Responsibilities
+
+#### **Configs Package**
+- `config.py` - Centralized RAG configuration, API keys, and Pinecone index management
+- `system_prompts.py` - Specialized prompts for each agent (validation, summarization, mitigation)
+- `inputs.py` - Test incident reports for demo purposes
+
+#### **Nodes Package**
+- Each node is a specialized agent in the LangGraph workflow
+- `base_node.py` - Abstract base class implementing common interface
+- Validation → Router → (Conservative | Complete) → Retrieval → Mitigation
+
+#### **Data Handling Package** (Modular Architecture)
+- **`embeddings.py`** - Shared embedding logic for both ingestion and retrieval
+  - `embed_documents()` - Batch embedding for document ingestion
+  - `embed_query()` - Single query embedding for semantic search
+
+- **`vector_store.py`** - Abstraction over Pinecone operations
+  - `VectorStore` class encapsulates all database operations
+  - `upsert_vectors()` - Add documents with metadata
+  - `upsert_by_namespace()` - Namespace-organized uploads
+  - `query()` - Semantic similarity search
+
+- **`document_parser.py`** - Generic document parsing utilities
+  - `extract_section()` - Regex-based section extraction
+
+- **`incident_parser.py`** - Incident-specific parsing
+  - `IncidentReportParser` class
+  - Metadata extraction (incident ID, date, vehicle ID, threat category, etc.)
+  - Cross-section metadata injection (each section contains text from all other sections)
+
+- **`ingestion_pipeline.py`** - Complete ingestion workflow
+  - `IngestionPipeline` class orchestrates: parsing → embedding → storage
+  - Standalone script for batch ingestion: `python -m data_handling.ingestion_pipeline`
 
 
 ### Execution Flow:
