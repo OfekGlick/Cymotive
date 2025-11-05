@@ -109,32 +109,14 @@ The system implements a conditional branching workflow that adapts based on inci
 - `inputs.py` - Test incident reports for demo purposes
 
 #### **Nodes Package**
-- Each node is a specialized agent in the LangGraph workflow
-- `base_node.py` - Abstract base class implementing common interface
-- Validation → Router → (Conservative | Complete) → Retrieval → Mitigation
+Multi-agent workflow nodes for incident analysis with conditional routing (conservative vs. complete paths).
 
-#### **Data Handling Package** (Modular Architecture)
-- **`embeddings.py`** - Shared embedding logic for both ingestion and retrieval
-  - `embed_documents()` - Batch embedding for document ingestion
-  - `embed_query()` - Single query embedding for semantic search
+📖 **[See nodes/README.md for detailed documentation](nodes/README.md)**
 
-- **`vector_store.py`** - Abstraction over Pinecone operations
-  - `VectorStore` class encapsulates all database operations
-  - `upsert_vectors()` - Add documents with metadata
-  - `upsert_by_namespace()` - Namespace-organized uploads
-  - `query()` - Semantic similarity search
+#### **Data Handling Package**
+Document ingestion, embedding generation, and vector database operations for RAG.
 
-- **`document_parser.py`** - Generic document parsing utilities
-  - `extract_section()` - Regex-based section extraction
-
-- **`incident_parser.py`** - Incident-specific parsing
-  - `IncidentReportParser` class
-  - Metadata extraction (incident ID, date, vehicle ID, threat category, etc.)
-  - Cross-section metadata injection (each section contains text from all other sections)
-
-- **`ingestion_pipeline.py`** - Complete ingestion workflow
-  - `IngestionPipeline` class orchestrates: parsing → embedding → storage
-  - Standalone script for batch ingestion: `python -m data_handling.ingestion_pipeline`
+📖 **[See data_handling/README.md for detailed documentation](data_handling/README.md)**
 
 
 ### Execution Flow:
