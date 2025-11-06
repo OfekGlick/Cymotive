@@ -35,7 +35,7 @@ The system implements a conditional branching workflow that adapts based on inci
        │
        ▼
 ┌─────────────┐
-│   Router    │  ← Checks if critical info (WHEN/IMPACT) is missing
+│   Router    │  ← Checks if critical info (WHAT/WHERE/WHEN) is missing
 └──────┬──────┘
        │
        ├──────────────────────┬─────────────────────┐
